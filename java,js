@@ -1,0 +1,199 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Game data - texts with sentences in correct order
+    const gameLevels = {
+        1: [
+            "Les loisirs sont très importants pour notre bien-être et notre équilibre.",
+            "Beaucoup de gens aiment lire des livres pour s’évader et apprendre de nouvelles choses.    ",
+            "Le sport est aussi un excellent loisir, car il permet de rester en forme et de se détendre.",
+            "Certains préfèrent la natation, le football ou le cyclisme pour se divertir tout en faisant de l'exercice.",
+            "La musique est un autre passe-temps apprécié, que ce soit écouter des chansons ou jouer d’un instrument.",
+            "Le dessin et la peinture permettent d’exprimer sa créativité et de développer son talent artistique.",
+            "Voyager est une activité passionnante qui permet de découvrir de nouvelles cultures et paysages.",
+            "Certains passent leur temps libre à jouer aux jeux vidéo pour se divertir et relever des défis.",
+            "D'autres aiment cuisiner et essayer de nouvelles recettes pour partager de bons repas en famille ou entre amis.",
+            "Quel que soit le loisir choisi, l’important est de prendre du plaisir et de se détendre."
+        ],
+        2: [
+            "Avoir des loisirs est essentiel pour maintenir un bon équilibre entre travail et détente. ",
+            "Certains préfèrent les activités artistiques comme la sculpture ou l'écriture, qui demandent patience et créativité. ",
+            " D'autres trouvent du plaisir dans les sports extrêmes, recherchant l'adrénaline et les sensations fortes.",
+            "Lire des romans en langue étrangère est aussi un excellent passe-temps, car cela permet d'apprendre tout en se divertissant.",
+            "Beaucoup de personnes aiment voyager, car cela leur offre l'opportunité de découvrir des traditions et des modes de vie différents.",
+            "Passer du temps en pleine nature, loin de la technologie, aide à se ressourcer et à réduire le stress.",
+            "Jouer aux échecs est un loisir qui stimule l'esprit et développe la réflexion stratégique.",
+            "Dans un monde de plus en plus numérique, certains choisissent de programmer des jeux vidéo comme passe-temps créatif et technique.",
+            "La photographie est également une activité passionnante, car elle permet de capturer des instants uniques et de les partager avec les autres.",
+            "Finalement, peu importe l’activité choisie, l’essentiel est qu’elle apporte satisfaction et épanouissement personnel."
+        ],
+        3: [
+            "Les loisirs occupent une place essentielle dans la vie de chacun, offrant une pause nécessaire aux exigences quotidiennes.",
+            " Tandis que certains préfèrent s'immerger dans l'art visuel, en peignant ou en photographiant des paysages, d'autres se tournent vers des activités plus intellectuelles, comme la lecture de livres philosophiques ou l'apprentissage de langues anciennes.",
+            " Les voyages, qu'ils soient proches ou lointains, permettent non seulement de découvrir des cultures, mais aussi de mieux comprendre l'histoire des lieux visités.",
+            "Dans un monde de plus en plus numérique, nombreux sont ceux qui se tournent vers les technologies modernes pour développer leurs compétences en programmation ou créer des applications.",
+            "Il y a aussi ceux qui trouvent leur épanouissement dans les loisirs créatifs, comme la fabrication de meubles en bois ou la couture, qui demandent à la fois patience et minutie",
+            "Certaines personnes choisissent de pratiquer des sports extrêmes, à la recherche de sensations fortes, comme le saut à l’élastique ou l’escalade.",
+            "Pourtant, pour d’autres, la simple promenade dans un parc ou un jardin botanique est une manière idéale de se ressourcer en toute tranquillité.",
+            "Le cinéma et le théâtre sont également des loisirs populaires, permettant de vivre des émotions fortes et de s'évader dans des univers imaginaires.",
+            "La pratique d'activités de groupe, comme la danse ou les sports collectifs, favorise l'esprit d'équipe et le partage d'expériences.",
+            "En fin de compte, l'important est que chaque activité soit choisie en fonction des besoins individuels de relaxation et de plaisir, afin de maintenir un équilibre de vie harmonieux."
+        ]
+    };
+
+    // DOM elements
+    const levelButtons = document.querySelectorAll('.level-btn');
+    const sentencesList = document.getElementById('sentences-list');
+    const solutionList = document.getElementById('solution-list');
+    const checkButton = document.getElementById('check-btn');
+    const resetButton = document.getElementById('reset-btn');
+    const feedback = document.getElementById('feedback');
+
+    let currentLevel = null;
+    let correctOrder = [];
+    let draggingElement = null;
+
+    // Initialize game
+    function initGame(level) {
+        currentLevel = level;
+        correctOrder = [...gameLevels[level]];
+        
+        // Clear lists
+        sentencesList.innerHTML = '';
+        solutionList.innerHTML = '';
+        feedback.innerHTML = '';
+        feedback.className = 'feedback hidden';
+        
+        // Update active level button
+        levelButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (parseInt(btn.dataset.level) === level) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Shuffle sentences and add to sentences list
+        const shuffledSentences = [...correctOrder].sort(() => Math.random() - 0.5);
+        
+        shuffledSentences.forEach(sentence => {
+            const li = createSentenceElement(sentence);
+            sentencesList.appendChild(li);
+        });
+    }
+
+    // Create draggable sentence element
+    function createSentenceElement(sentence) {
+        const li = document.createElement('li');
+        li.className = 'sentence-item';
+        li.textContent = sentence;
+        li.draggable = true;
+        
+        li.addEventListener('dragstart', handleDragStart);
+        li.addEventListener('dragend', handleDragEnd);
+        
+        return li;
+    }
+
+    // Drag and drop handlers
+    function handleDragStart(e) {
+        draggingElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.textContent);
+    }
+
+    function handleDragEnd() {
+        this.classList.remove('dragging');
+        draggingElement = null;
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        return false;
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        
+        if (draggingElement) {
+            // Move the element to the solution list
+            if (draggingElement.parentNode === sentencesList) {
+                solutionList.appendChild(draggingElement);
+            }
+            // Or reorder within solution list
+            else if (draggingElement.parentNode === solutionList && e.target.classList.contains('sentence-item')) {
+                const afterElement = getDragAfterElement(solutionList, e.clientY);
+                if (afterElement) {
+                    solutionList.insertBefore(draggingElement, afterElement);
+                } else {
+                    solutionList.appendChild(draggingElement);
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    // Helper function to determine where to place dragged element
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.sentence-item:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // Check if solution is correct
+    function checkSolution() {
+        const userSolution = Array.from(solutionList.children).map(li => li.textContent);
+        
+        if (userSolution.length !== correctOrder.length) {
+            showFeedback("Vous n'avez pas placé toutes les phrases.", false);
+            return;
+        }
+        
+        const isCorrect = userSolution.every((sentence, index) => sentence === correctOrder[index]);
+        
+        if (isCorrect) {
+            showFeedback("Bravo ! Vous avez correctement ordonné les phrases.", true);
+        } else {
+            showFeedback("Ce n'est pas tout à fait ça. Essayez encore !", false);
+        }
+    }
+
+    // Show feedback message
+    function showFeedback(message, isSuccess) {
+        feedback.textContent = message;
+        feedback.className = `feedback ${isSuccess ? 'success' : 'error'}`;
+    }
+
+    // Reset current level
+    function resetLevel() {
+        if (currentLevel) {
+            initGame(currentLevel);
+        }
+    }
+
+    
+    // Event listeners
+    levelButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            initGame(parseInt(button.dataset.level));
+        });
+    });
+
+    checkButton.addEventListener('click', checkSolution);
+    resetButton.addEventListener('click', resetLevel);
+
+    // Set up drag and drop for solution list
+    solutionList.addEventListener('dragover', handleDragOver);
+    solutionList.addEventListener('drop', handleDrop);
+
+    // Initialize with level 1
+    initGame(1);
+});
