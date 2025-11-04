@@ -1,3 +1,42 @@
+/* Adaugă acest cod la finalul fișierului style.css */
+
+.subjects-list {
+    margin-top: 40px;
+}
+
+.subject-class-group {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.subject-class-group h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.subject-class-group ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.subject-class-group li {
+    margin-bottom: 10px;
+}
+
+.subject-class-group a {
+    color: #0056b3;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.subject-class-group a:hover {
+    text-decoration: underline;
+}
 :root {
     --primary: #6a11cb;
     --secondary: #2575fc;
